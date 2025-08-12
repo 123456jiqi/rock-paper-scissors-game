@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老板对决：石头剪刀布</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 {
+            color: #FFD700;
+            font-size: 3.5rem;
+            text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: white;
+            font-size: 2rem;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+            background: rgba(218, 165, 32, 0.3);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            color: white;
+            font-size: 1.8rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .game-info div {
+            padding: 0 20px;
+        }
+        
+        .game-info span {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 2.2rem;
+        }
+        
+        .game-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+            min-height: 400px;
+        }
+        
+        .player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .character {
+            position: relative;
+            height: 350px;
+            width: 280px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .boss-title {
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            min-width: 200px;
+        }
+        
+        .character-body {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+        
+        /* 蟹老板样式 */
+        .crab .head {
+            width: 130px;
+            height: 110px;
+            background: #FF5252;
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .crab .eyes {
+            position: absolute;
+            top: 50px;
+            width: 100px;
+            display: flex;
+            justify-content: space-between;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .crab .eye {
+            width: 25px;
+            height: 35px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .crab .eye::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            top: 10px;
+            left: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .crab .body {
+            width: 180px;
+            height: 150px;
+            background: #FF5252;
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .crab .claw {
+            position: absolute;
+            top: 110px;
+            width: 40px;
+            height: 60px;
+            background: #FF5252;
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .crab .claw.left {
+            left: 25px;
+            transform: rotate(-30deg);
+        }
+        
+        .crab .claw.right {
+            right: 25px;
+            transform: rotate(30deg);
+        }
+        
+        .crab .legs {
+            position: absolute;
+            bottom: 20px;
+            width: 180px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .crab .leg {
+            width: 15px;
+            height: 70px;
+            background: #FF5252;
+            border-radius: 10px;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 杨老板样式 */
+        .yang .head {
+            width: 100px;
+            height: 100px;
+            background: #4CAF50;
+            border-radius: 50%;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .yang .body {
+            width: 150px;
+            height: 150px;
+            background: #4CAF50;
+            border-radius: 50%;
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .yang .eyes {
+            position: absolute;
+            top: 60px;
+            width: 80px;
+            display: flex;
+            justify-content: space-between;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .yang .eye {
+            width: 20px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .yang .eye::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+            top: 8px;
+            left: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .yang .mouth {
+            width: 50px;
+            height: 20px;
+            background: #E91E63;
+            border-radius: 0 0 25px 25px;
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .yang .legs {
+            position: absolute;
+            bottom: 0;
+            width: 120px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .yang .leg {
+            width: 15px;
+            height: 80px;
+            background: #2E7D32;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 手势样式 */
+        .hand {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+            font-size: 3rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .crab .hand {
+            top: 60px;
+            right: 20px;
+        }
+        
+        .yang .hand {
+            top: 60px;
+            left: 20px;
+        }
+        
+        /* 控制区域 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            font-size: 1.8rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            color: white;
+            letter-spacing: 1px;
+            font-family: 'Ma Shan Zheng', cursive;
+            min-width: 150px;
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.rock { 
+            background: linear-gradient(to right, #4A00E0, #8E2DE2); 
+            box-shadow: 0 8px 15px rgba(74, 0, 224, 0.4);
+        }
+        .btn.paper { 
+            background: linear-gradient(to right, #00b09b, #96c93d); 
+            box-shadow: 0 8px 15px rgba(0, 176, 155, 0.4);
+        }
+        .btn.scissors { 
+            background: linear-gradient(to right, #ff416c, #ff4b2b); 
+            box-shadow: 0 8px 15px rgba(255, 65, 108, 0.4);
+        }
+        
+        /* 结果区域 */
+        .result {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .result-text {
+            font-size: 2.2rem;
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+            font-family: 'ZCOOL QingKe HuangYou', sans-serif;
+            padding: 10px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+        
+        .vs {
+            font-size: 4rem;
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            border: 3px solid gold;
+        }
+        
+        /* 动画 */
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-40px); }
+        }
+        
+        .win-animation {
+            animation: jump 0.8s ease;
+        }
+        
+        /* 撒花效果 */
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #ff0;
+            opacity: 0.8;
+            top: -20px;
+            animation: fall 5s linear forwards;
+            z-index: 100;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 响应式设计 - 适配微信内浏览器 */
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+                padding: 8px 15px;
+            }
+            
+            .btn {
+                font-size: 1.5rem;
+                padding: 12px 20px;
+                min-width: 120px;
+            }
+            
+            .vs {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+            
+            .boss-title {
+                font-size: 1.8rem;
+                padding: 8px 15px;
+            }
+            
+            .result-text {
+                font-size: 1.8rem;
+            }
+            
+            .game-info {
+                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .game-info div {
+                padding: 5px;
+            }
+        }
+        
+        /* 金币装饰 */
+        .gold-coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #daa520);
+            border-radius: 50%;
+            box-shadow: 0 0 10px gold;
+            z-index: 1;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #00c9ff, #92fe9d);
+            color: #333;
+            font-size: 1.6rem;
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-weight: bold;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(to right, #00b4db, #80ff9a);
+        }
+        
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        
+        .game-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .final-result {
+            font-size: 3.5rem;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            padding: 0 20px;
+        }
+        
+        .winner-text {
+            font-size: 4.5rem;
+            color: white;
+            text-align: center;
+            animation: glow 2s infinite alternate;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073; }
+            to { text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6; }
+        }
+        
+        .eye-movement {
+            animation: eyeMove 0.5s ease;
+        }
+        
+        @keyframes eyeMove {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(3px); }
+            75% { transform: translateX(-3px); }
+        }
+        
+        .hand-selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #FFF;
+            font-size: 1.4rem;
+            text-align: left;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>老板对决</h1>
+            <div class="subtitle">两位老板的对决</div>
+        </header>
+        
+        <div class="game-info">
+            <div>回合: <span id="round-count">0</span>/5</div>
+            <div>目标: 先赢<span class="highlight">3</span>局</div>
+            <div>状态: <span id="game-status">进行中</span></div>
+        </div>
+        
+        <div class="game-area">
+            <div class="player">
+                <div class="boss-title">蟹老板 <span id="crab-score">0</span></div>
+                <div class="character crab">
+                    <div class="character-body">
+                        <div class="head"></div>
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="body"></div>
+                        <div class="claw left"></div>
+                        <div class="claw right"></div>
+                        <div class="legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                        <div class="hand">✊</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="vs">VS</div>
+            
+            <div class="player">
+                <div class="boss-title">杨老板 <span id="yang-score">0</span></div>
+                <div class="character yang">
+                    <div class="character-body">
+                        <div class="head"></div>
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="mouth"></div>
+                        <div class="body"></div>
+                        <div class="legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                        <div class="hand">✋</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn rock" data-choice="rock">✊ 石头</button>
+            <button class="btn paper" data-choice="paper">✋ 布</button>
+            <button class="btn scissors" data-choice="scissors">✌️ 剪刀</button>
+        </div>
+        
+        <div class="result">
+            <div class="result-text" id="result">选择你的手势开始对决！</div>
+        </div>
+        
+        <button class="btn reset-btn" id="reset-btn">重新开始游戏</button>
+        
+        <div class="instructions">
+            <h3>游戏说明</h3>
+            <ul>
+                <li>扮演蟹老板，与杨老板进行石头剪刀布对决</li>
+                <li>五局三胜制 - 先赢三局者获胜</li>
+                <li>五局结束后得分高者获胜</li>
+                <li>获胜者将获得撒花庆祝！</li>
+            </ul>
+        </div>
+        
+        <!-- 游戏结束覆盖层 -->
+        <div class="game-overlay" id="game-overlay">
+            <div class="final-result">游戏结束！</div>
+            <div class="winner-text" id="winner-text">蟹老板获胜！</div>
+            <button class="btn reset-btn" id="final-reset-btn">再来一局</button>
+        </div>
+    </div>
+    
+    <!-- 金币装饰 -->
+    <div class="gold-coin" style="top: 10%; left: 10%;"></div>
+    <div class="gold-coin" style="top: 20%; right: 15%; animation-delay: -2s;"></div>
+    <div class="gold-coin" style="top: 70%; left: 20%; animation-delay: -4s;"></div>
+    <div class="gold-coin" style="bottom: 10%; right: 10%; animation-delay: -6s;"></div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            crabScore: 0,
+            yangScore: 0,
+            rounds: 0,
+            maxRounds: 5,
+            targetScore: 3,
+            gameOver: false
+        };
+        
+        // DOM 元素
+        const crabScoreEl = document.getElementById('crab-score');
+        const yangScoreEl = document.getElementById('yang-score');
+        const roundCountEl = document.getElementById('round-count');
+        const gameStatusEl = document.getElementById('game-status');
+        const resultEl = document.getElementById('result');
+        const choiceBtns = document.querySelectorAll('.btn:not(.reset-btn)');
+        const resetBtn = document.getElementById('reset-btn');
+        const finalResetBtn = document.getElementById('final-reset-btn');
+        const crabHand = document.querySelector('.crab .hand');
+        const yangHand = document.querySelector('.yang .hand');
+        const crabCharacter = document.querySelector('.crab .character-body');
+        const yangCharacter = document.querySelector('.yang .character-body');
+        const gameOverlay = document.getElementById('game-overlay');
+        const winnerTextEl = document.getElementById('winner-text');
+        const crabEyes = document.querySelectorAll('.crab .eye');
+        const yangEyes = document.querySelectorAll('.yang .eye');
+        
+        // 手势映射
+        const choices = {
+            rock: { icon: '✊', name: '石头' },
+            paper: { icon: '✋', name: '布' },
+            scissors: { icon: '✌️', name: '剪刀' }
+        };
+        
+        // 结果判定
+        const getResult = (crabChoice, yangChoice) => {
+            if (crabChoice === yangChoice) return '平局！';
+            
+            if (
+                (crabChoice === 'rock' && yangChoice === 'scissors') ||
+                (crabChoice === 'paper' && yangChoice === 'rock') ||
+                (crabChoice === 'scissors' && yangChoice === 'paper')
+            ) {
+                gameState.crabScore++;
+                crabScoreEl.textContent = gameState.crabScore;
+                return '蟹老板赢了！';
+            } else {
+                gameState.yangScore++;
+                yangScoreEl.textContent = gameState.yangScore;
+                return '杨老板赢了！';
+            }
+        };
+        
+        // 杨老板随机选择
+        const yangPlay = () => {
+            const choices = ['rock', 'paper', 'scissors'];
+            const randomIndex = Math.floor(Math.random() * 3);
+            return choices[randomIndex];
+        };
+        
+        // 撒花庆祝
+        const createConfetti = (character) => {
+            const rect = character.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // 随机颜色
+                const colors = ['#ff0', '#f00', '#0f0', '#00f', '#f0f', '#ff9500'];
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 随机大小
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // 随机起始位置
+                const startX = centerX + (Math.random() - 0.5) * 100;
+                confetti.style.left = `${startX}px`;
+                
+                // 随机动画延迟
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        };
+        
+        // 眼睛动画
+        const animateEyes = () => {
+            crabEyes.forEach(eye => {
+                eye.classList.add('eye-movement');
+                setTimeout(() => {
+                    eye.classList.remove('eye-movement');
+                }, 500);
+            });
+            
+            yangEyes.forEach(eye => {
+                eye.classList.add('eye-movement');
+                setTimeout(() => {
+                    eye.classList.remove('eye-movement');
+                }, 500);
+            });
+        };
+        
+        // 检查游戏是否结束
+        const checkGameEnd = () => {
+            // 达到目标分数
+            if (gameState.crabScore >= gameState.targetScore || 
+                gameState.yangScore >= gameState.targetScore) {
+                endGame();
+                return true;
+            }
+            
+            // 达到最大回合数
+            if (gameState.rounds >= gameState.maxRounds) {
+                endGame();
+                return true;
+            }
+            
+            return false;
+        };
+        
+        // 结束游戏
+        const endGame = () => {
+            gameState.gameOver = true;
+            gameStatusEl.textContent = "已结束";
+            gameStatusEl.style.color = "#FF6347";
+            
+            let winner = '';
+            if (gameState.crabScore > gameState.yangScore) {
+                winner = '蟹老板';
+            } else if (gameState.yangScore > gameState.crabScore) {
+                winner = '杨老板';
+            } else {
+                winner = '平局';
+            }
+            
+            // 显示游戏结束画面
+            winnerTextEl.textContent = winner === '平局' ? '平局！' : `${winner}获胜！`;
+            gameOverlay.classList.add('active');
+            
+            // 撒花庆祝
+            if (winner === '蟹老板') {
+                createConfetti(crabCharacter);
+            } else if (winner === '杨老板') {
+                createConfetti(yangCharacter);
+            } else {
+                createConfetti(crabCharacter);
+                createConfetti(yangCharacter);
+            }
+            
+            // 禁用选择按钮
+            choiceBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
+        };
+        
+        // 游戏主逻辑
+        const playGame = (crabChoice) => {
+            if (gameState.gameOver) return;
+            
+            gameState.rounds++;
+            roundCountEl.textContent = gameState.rounds;
+            
+            // 眼睛动画
+            animateEyes();
+            
+            const yangChoice = yangPlay();
+            
+            // 更新手势显示
+            crabHand.textContent = choices[crabChoice].icon;
+            yangHand.textContent = choices[yangChoice].icon;
+            
+            // 添加选中效果
+            crabHand.classList.add('hand-selected');
+            yangHand.classList.add('hand-selected');
+            setTimeout(() => {
+                crabHand.classList.remove('hand-selected');
+                yangHand.classList.remove('hand-selected');
+            }, 500);
+            
+            // 计算并显示结果
+            const result = getResult(crabChoice, yangChoice);
+            resultEl.textContent = `第${gameState.rounds}局：蟹老板出了${choices[crabChoice].name}，杨老板出了${choices[yangChoice].name}。${result}`;
+            
+            // 胜利动画和撒花
+            if (result.includes('赢')) {
+                if (result === '蟹老板赢了！') {
+                    crabCharacter.classList.add('win-animation');
+                    createConfetti(crabCharacter);
+                    setTimeout(() => {
+                        crabCharacter.classList.remove('win-animation');
+                    }, 800);
+                } else {
+                    yangCharacter.classList.add('win-animation');
+                    createConfetti(yangCharacter);
+                    setTimeout(() => {
+                        yangCharacter.classList.remove('win-animation');
+                    }, 800);
+                }
+            }
+            
+            // 检查游戏是否结束
+            setTimeout(() => {
+                checkGameEnd();
+            }, 1000);
+        };
+        
+        // 重置游戏
+        const resetGame = () => {
+            gameState.crabScore = 0;
+            gameState.yangScore = 0;
+            gameState.rounds = 0;
+            gameState.gameOver = false;
+            
+            crabScoreEl.textContent = '0';
+            yangScoreEl.textContent = '0';
+            roundCountEl.textContent = '0';
+            gameStatusEl.textContent = "进行中";
+            gameStatusEl.style.color = "#FFF";
+            
+            crabHand.textContent = '✊';
+            yangHand.textContent = '✋';
+            
+            resultEl.textContent = '选择你的手势开始对决！';
+            
+            choiceBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+            
+            gameOverlay.classList.remove('active');
+        };
+        
+        // 添加按钮事件监听
+        choiceBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                const choice = button.dataset.choice;
+                playGame(choice);
+            });
+        });
+        
+        resetBtn.addEventListener('click', resetGame);
+        finalResetBtn.addEventListener('click', resetGame);
+        
+        // 初始设置
+        resetGame();
+    </script>
+</body>
+</html>
