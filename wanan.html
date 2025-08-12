@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>晚安惊喜 | 迷宫小游戏</title>
+    <title>/title>
     <style>
         * {
             margin: 0;
@@ -29,7 +29,7 @@
             position: relative;
             width: 100%;
             max-width: 500px;
-            height: 80vh;
+            height: 85vh;
             max-height: 700px;
             box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
             border-radius: 20px;
@@ -57,15 +57,16 @@
             z-index: 10;
             text-align: center;
             padding: 20px;
-            transition: all 1s ease;
+            transition: all 0.8s ease;
         }
         
         .instructions {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             max-width: 90%;
+            backdrop-filter: blur(5px);
         }
         
         .instructions h2 {
@@ -167,6 +168,7 @@
             z-index: 5;
             display: flex;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
         
         .stats-icon {
@@ -250,12 +252,26 @@
         .center { grid-column: 2; grid-row: 2; background: transparent; }
         .right { grid-column: 3; grid-row: 2; }
         .down { grid-column: 2; grid-row: 3; }
+        
+        .game-title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 1.8rem;
+            color: #ff69b4;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+            z-index: 5;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
     <div class="stars" id="stars"></div>
     
     <div class="game-container">
+        <div class="game-title"></div>
         <div class="moon"></div>
         
         <div class="game-stats">
@@ -279,10 +295,9 @@
             <div class="instructions">
                 <h2>游戏说明</h2>
                 <ul>
-                    <li>使用方向键或下方按钮移动爱心</li>
+                    <li>使用方向键或下方按钮移动心心</li>
                     <li>收集迷宫中的所有三颗星星</li>
                     <li>收集星星后终点才会开启</li>
-                    <li>到达终点查看特别祝福</li>
                     <li>避开墙壁，找到最佳路径</li>
                 </ul>
             </div>
@@ -341,21 +356,6 @@
             const restartBtn = document.getElementById('restartBtn');
             const starsCountElement = document.getElementById('stars-count');
             
-            // 设置canvas尺寸
-            function resizeCanvas() {
-                const container = document.querySelector('.game-container');
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                
-                // 重新计算尺寸相关的变量
-                calculateCellSize();
-                drawMaze();
-            }
-            
-            // 初始调整尺寸
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
             // 迷宫定义 - 1代表墙壁，0代表路径
             const maze = [
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -392,23 +392,32 @@
             let collectedStars = 0;
             let gameStarted = false;
             
-            // 计算格子大小
-            function calculateCellSize() {
-                const rows = maze.length;
-                const cols = maze[0].length;
+            // 设置canvas尺寸
+            function resizeCanvas() {
+                const container = document.querySelector('.game-container');
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
                 
                 // 计算合适的格子大小
+                const rows = maze.length;
+                const cols = maze[0].length;
                 const widthBasedSize = Math.floor(canvas.width / cols);
                 const heightBasedSize = Math.floor(canvas.height / rows);
                 
                 cellSize = Math.min(widthBasedSize, heightBasedSize);
                 player.size = cellSize * 0.6;
+                
+                if (gameStarted) {
+                    drawMaze();
+                }
             }
+            
+            // 初始调整尺寸
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
             
             // 绘制迷宫
             function drawMaze() {
-                if (!gameStarted) return;
-                
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 // 绘制墙壁
@@ -644,11 +653,11 @@
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
                 e.preventDefault();
-            });
+            }, { passive: false });
             
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-            });
+            }, { passive: false });
             
             canvas.addEventListener('touchend', (e) => {
                 if (!touchStartX || !touchStartY || !gameStarted) return;
@@ -678,7 +687,7 @@
             startBtn.addEventListener('click', () => {
                 startScreen.classList.add('hidden');
                 gameStarted = true;
-                calculateCellSize();
+                resizeCanvas(); // 确保重新计算尺寸
                 drawMaze();
             });
             
@@ -697,7 +706,7 @@
                 });
                 
                 gameStarted = true;
-                calculateCellSize();
+                resizeCanvas();
                 drawMaze();
             });
             
@@ -708,6 +717,9 @@
                     endScreen.classList.remove('hidden');
                 }, 800);
             }
+            
+            // 初始绘制
+            drawMaze();
         });
     </script>
 </body>
