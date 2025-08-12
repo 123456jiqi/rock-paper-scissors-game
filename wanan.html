@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>晚安惊喜 | 迷宫小游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+            padding: 10px;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            max-height: 700px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            background-color: rgba(0, 0, 0, 0.7);
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(22, 33, 62, 0.95);
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            transition: all 1s ease;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            max-width: 90%;
+        }
+        
+        .instructions h2 {
+            color: #ff69b4;
+            margin-bottom: 12px;
+            font-size: 1.4rem;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            text-align: left;
+            padding: 0 15px;
+            font-size: 0.95rem;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions li::before {
+            content: "★";
+            color: #ffd700;
+            margin-right: 8px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .stars-container {
+            display: flex;
+            margin: 15px 0;
+        }
+        
+        .star {
+            font-size: 1.8rem;
+            margin: 0 8px;
+            color: #ccc;
+        }
+        
+        .star.collected {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        .final-message {
+            font-size: 2.2rem;
+            text-align: center;
+            line-height: 1.5;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            padding: 20px;
+            background: rgba(22, 33, 62, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.6);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .game-stats {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 15px;
+            border-radius: 10px;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stats-icon {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+        
+        .moon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #f9f3e9, #e6e6fa);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #fff, 0 0 30px rgba(255, 255, 255, 0.5);
+            z-index: 5;
+        }
+        
+        /* 星空背景 */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star-bg {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        /* 手机控制按钮 */
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 5;
+        }
+        
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 150px;
+            height: 150px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
+        }
+        
+        .control-btn:active {
+            background: rgba(255, 105, 180, 0.5);
+            transform: scale(0.95);
+        }
+        
+        .up { grid-column: 2; grid-row: 1; }
+        .left { grid-column: 1; grid-row: 2; }
+        .center { grid-column: 2; grid-row: 2; background: transparent; }
+        .right { grid-column: 3; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 3; }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="game-container">
+        <div class="moon"></div>
+        
+        <div class="game-stats">
+            <div class="stats-icon">⭐</div>
+            <div><span id="stars-count">0/3</span></div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="mobile-controls">
+            <div class="dpad">
+                <button class="control-btn up" id="upBtn">↑</button>
+                <button class="control-btn left" id="leftBtn">←</button>
+                <div class="center"></div>
+                <button class="control-btn right" id="rightBtn">→</button>
+                <button class="control-btn down" id="downBtn">↓</button>
+            </div>
+        </div>
+        
+        <div class="game-overlay" id="startScreen">
+            <div class="instructions">
+                <h2>游戏说明</h2>
+                <ul>
+                    <li>使用方向键或下方按钮移动爱心</li>
+                    <li>收集迷宫中的所有三颗星星</li>
+                    <li>收集星星后终点才会开启</li>
+                    <li>到达终点查看特别祝福</li>
+                    <li>避开墙壁，找到最佳路径</li>
+                </ul>
+            </div>
+            
+            <button class="btn" id="startBtn">开始游戏</button>
+        </div>
+        
+        <div class="game-overlay hidden" id="endScreen">
+            <div class="final-message">
+                晚安<br>
+                好梦<br>
+                开心呀！
+            </div>
+            <div class="stars-container">
+                <div class="star collected">★</div>
+                <div class="star collected">★</div>
+                <div class="star collected">★</div>
+            </div>
+            <button class="btn" id="restartBtn">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star-bg');
+                
+                // 随机位置和大小
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // 随机动画持续时间
+                star.style.setProperty('--duration', `${Math.random() * 5 + 2}s`);
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 游戏主要逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const startScreen = document.getElementById('startScreen');
+            const endScreen = document.getElementById('endScreen');
+            const startBtn = document.getElementById('startBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const starsCountElement = document.getElementById('stars-count');
+            
+            // 设置canvas尺寸
+            function resizeCanvas() {
+                const container = document.querySelector('.game-container');
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                
+                // 重新计算尺寸相关的变量
+                calculateCellSize();
+                drawMaze();
+            }
+            
+            // 初始调整尺寸
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 迷宫定义 - 1代表墙壁，0代表路径
+            const maze = [
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+                [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ];
+            
+            let cellSize;
+            const player = {
+                x: 1,
+                y: 1,
+                size: 0
+            };
+            
+            const stars = [
+                { x: 3, y: 5, collected: false },
+                { x: 8, y: 9, collected: false },
+                { x: 12, y: 3, collected: false }
+            ];
+            
+            const endPoint = { x: 14, y: 13 };
+            let collectedStars = 0;
+            let gameStarted = false;
+            
+            // 计算格子大小
+            function calculateCellSize() {
+                const rows = maze.length;
+                const cols = maze[0].length;
+                
+                // 计算合适的格子大小
+                const widthBasedSize = Math.floor(canvas.width / cols);
+                const heightBasedSize = Math.floor(canvas.height / rows);
+                
+                cellSize = Math.min(widthBasedSize, heightBasedSize);
+                player.size = cellSize * 0.6;
+            }
+            
+            // 绘制迷宫
+            function drawMaze() {
+                if (!gameStarted) return;
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制墙壁
+                ctx.fillStyle = '#4a3a70';
+                for (let y = 0; y < maze.length; y++) {
+                    for (let x = 0; x < maze[y].length; x++) {
+                        if (maze[y][x] === 1) {
+                            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                            
+                            // 添加墙壁纹理
+                            ctx.strokeStyle = '#362b52';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        }
+                    }
+                }
+                
+                // 绘制路径
+                ctx.fillStyle = '#1e1a2f';
+                for (let y = 0; y < maze.length; y++) {
+                    for (let x = 0; x < maze[y].length; x++) {
+                        if (maze[y][x] === 0) {
+                            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        }
+                    }
+                }
+                
+                // 绘制终点
+                if (collectedStars === stars.length) {
+                    ctx.fillStyle = '#00ff8c';
+                    ctx.beginPath();
+                    ctx.arc(
+                        endPoint.x * cellSize + cellSize/2, 
+                        endPoint.y * cellSize + cellSize/2, 
+                        cellSize/3, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#00cc70';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(
+                        endPoint.x * cellSize + cellSize/2, 
+                        endPoint.y * cellSize + cellSize/2, 
+                        cellSize/3, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    ctx.stroke();
+                } else {
+                    ctx.fillStyle = '#555';
+                    ctx.beginPath();
+                    ctx.arc(
+                        endPoint.x * cellSize + cellSize/2, 
+                        endPoint.y * cellSize + cellSize/2, 
+                        cellSize/3, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+                
+                // 绘制星星
+                stars.forEach(star => {
+                    if (!star.collected) {
+                        drawStar(
+                            star.x * cellSize + cellSize/2, 
+                            star.y * cellSize + cellSize/2, 
+                            cellSize/3
+                        );
+                    }
+                });
+                
+                // 绘制玩家
+                drawPlayer();
+            }
+            
+            // 绘制星星
+            function drawStar(cx, cy, radius) {
+                ctx.save();
+                ctx.translate(cx, cy);
+                
+                // 绘制星星主体
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    
+                    const innerAngle = angle + Math.PI/5;
+                    const innerX = Math.cos(innerAngle) * (radius/2);
+                    const innerY = Math.sin(innerAngle) * (radius/2);
+                    ctx.lineTo(innerX, innerY);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                // 添加发光效果
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.restore();
+            }
+            
+            // 绘制玩家（爱心）
+            function drawPlayer() {
+                ctx.save();
+                ctx.translate(
+                    player.x * cellSize + cellSize/2, 
+                    player.y * cellSize + cellSize/2
+                );
+                
+                // 绘制爱心
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                const curve = 0.4;
+                ctx.moveTo(0, -player.size/2);
+                ctx.bezierCurveTo(
+                    player.size/2 * curve, -player.size/2,
+                    player.size/2, -player.size/4,
+                    player.size/2, 0
+                );
+                ctx.bezierCurveTo(
+                    player.size/2, player.size/4,
+                    0, player.size/2,
+                    0, player.size/2
+                );
+                ctx.bezierCurveTo(
+                    0, player.size/2,
+                    -player.size/2, player.size/4,
+                    -player.size/2, 0
+                );
+                ctx.bezierCurveTo(
+                    -player.size/2, -player.size/4,
+                    -player.size/2 * curve, -player.size/2,
+                    0, -player.size/2
+                );
+                ctx.closePath();
+                ctx.fill();
+                
+                // 添加发光效果
+                ctx.shadowColor = '#ff69b4';
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.restore();
+            }
+            
+            // 移动玩家
+            function movePlayer(dx, dy) {
+                const newX = player.x + dx;
+                const newY = player.y + dy;
+                
+                // 检查边界和墙壁
+                if (
+                    newX >= 0 && 
+                    newX < maze[0].length && 
+                    newY >= 0 && 
+                    newY < maze.length && 
+                    maze[newY][newX] !== 1
+                ) {
+                    player.x = newX;
+                    player.y = newY;
+                    
+                    // 检查是否收集星星
+                    stars.forEach(star => {
+                        if (!star.collected && star.x === player.x && star.y === player.y) {
+                            star.collected = true;
+                            collectedStars++;
+                            starsCountElement.textContent = `${collectedStars}/3`;
+                        }
+                    });
+                    
+                    // 检查是否到达终点
+                    if (
+                        collectedStars === stars.length && 
+                        player.x === endPoint.x && 
+                        player.y === endPoint.y
+                    ) {
+                        endGame();
+                    }
+                    
+                    drawMaze();
+                }
+            }
+            
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                if (!gameStarted) return;
+                
+                switch(e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        movePlayer(0, -1);
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        movePlayer(0, 1);
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        movePlayer(-1, 0);
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        movePlayer(1, 0);
+                        break;
+                }
+            });
+            
+            // 手机控制按钮
+            document.getElementById('upBtn').addEventListener('click', () => movePlayer(0, -1));
+            document.getElementById('downBtn').addEventListener('click', () => movePlayer(0, 1));
+            document.getElementById('leftBtn').addEventListener('click', () => movePlayer(-1, 0));
+            document.getElementById('rightBtn').addEventListener('click', () => movePlayer(1, 0));
+            
+            // 触摸滑动控制
+            let touchStartX, touchStartY;
+            
+            canvas.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                e.preventDefault();
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            });
+            
+            canvas.addEventListener('touchend', (e) => {
+                if (!touchStartX || !touchStartY || !gameStarted) return;
+                
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+                
+                // 确定主要移动方向
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // 水平移动
+                    if (dx > 20) movePlayer(1, 0);  // 向右
+                    else if (dx < -20) movePlayer(-1, 0); // 向左
+                } else {
+                    // 垂直移动
+                    if (dy > 20) movePlayer(0, 1);  // 向下
+                    else if (dy < -20) movePlayer(0, -1); // 向上
+                }
+                
+                touchStartX = null;
+                touchStartY = null;
+            });
+            
+            // 开始游戏
+            startBtn.addEventListener('click', () => {
+                startScreen.classList.add('hidden');
+                gameStarted = true;
+                calculateCellSize();
+                drawMaze();
+            });
+            
+            // 重新开始游戏
+            restartBtn.addEventListener('click', () => {
+                endScreen.classList.add('hidden');
+                
+                // 重置游戏状态
+                player.x = 1;
+                player.y = 1;
+                collectedStars = 0;
+                starsCountElement.textContent = '0/3';
+                
+                stars.forEach(star => {
+                    star.collected = false;
+                });
+                
+                gameStarted = true;
+                calculateCellSize();
+                drawMaze();
+            });
+            
+            // 结束游戏显示祝福
+            function endGame() {
+                gameStarted = false;
+                setTimeout(() => {
+                    endScreen.classList.remove('hidden');
+                }, 800);
+            }
+        });
+    </script>
+</body>
+</html>
